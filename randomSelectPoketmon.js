@@ -26,8 +26,6 @@ function loadPokemonNames(path) {
   }
 }
 
-const data = loadPokemonNames("./pokemonNames.json");
-
 
 // const mainDoc = `
 //   <!DOCTYPE html>
@@ -90,14 +88,43 @@ const data = loadPokemonNames("./pokemonNames.json");
 
 
   const server = http.createServer((req,res)=>{
-    fs.readFile("./랜덤포켓몬.html", "utf8",(err,datacell)=>{
-      if(err){
-        console.error("에러가발생! : ", err);
-        return;
-      }
-      res.writeHead(200, {"Content-Type":"text/html"});
-      res.end(datacell);
-    });
+    console.log(req.url);
+    let {method, url} = req;
+    switch(method){
+      case 'GET':
+        switch(url){
+          case '/':
+            fs.readFile('./랜덤포켓몬.html', (err,data)=>{
+              if(err){
+                res.writeHead(500, {"Content-Type":"text/plain; charset=UTF-8"});
+                res.end("서버연결오류");
+              }
+              res.writeHead(200, {"Content-Type":"text/html; charset=UTF-8"});
+              res.end(data);
+            });
+            break;
+          
+          case '/random.js':
+            fs.readFile('./random.js', (err,data)=>{
+              if(err){
+                res.writeHead(500, {"Content-Type":"text/plain; charset=UTF-8"});
+                res.end("서버연결오류");
+              }
+              res.writeHead(200, {"Content-Type":"application/js"});
+              res.end(data);
+            })
+            break;
+            default :
+            res.writeHead(404, {"Content-Type":"text/plain; charset=UTF-8"});
+            res.end("페이지를 찾을 수 없습니다");
+            break;
+        }
+        break;
+        default :
+        res.writeHead(404, {"Content-Type":"text/plain; charset=UTF-8"});
+        res.end("페이지를 찾을 수 없습니다");
+        break;
+    }
   })
 
   server.listen(port);
